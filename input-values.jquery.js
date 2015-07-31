@@ -1,4 +1,9 @@
-﻿(function ($) {
+﻿/*!
+ * jQuery form/json converter plugin
+ * Original author: @dantenetto 
+ * Licensed under the MIT license
+ */
+(function ($) {
     "use strict";
     var ControlsWrapper;
     
