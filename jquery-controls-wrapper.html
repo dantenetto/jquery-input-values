@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script src="input-values.jquery.js"></script>
+		<script type="text/javascript">
+			$(function () {
+                var $container = $('#container'),
+                    $output = $('#output');
+                
+                $container.on('keypress click', function () {
+                    console.log('interaction...');
+                    $output.val(JSON.stringify($container.inputValues()));
+                });
+                
+                $output.on('change', function () {
+                    var json;
+                    
+                    try {
+                        json = JSON.parse($output.val());
+                    } catch (e) {
+                        alert('invalid json');
+                        return;
+                    }
+                    
+                    $container.inputValues(json);
+                });
+            });
+		</script>
+	</head>
+	<body>
+		<div id="container">
+            <input type="text" name="input1">
+            <br>
+            <br>
+            
+            <textarea name="textarea"></textarea>
+            <br>
+            <br>
+            
+            <select name="select">
+                <option></option>
+                <option value="1">&nbsp;&nbsp;&nbsp;&nbsp;1</option>
+                <option value="2">&nbsp;&nbsp;&nbsp;&nbsp;2</option>
+                <option value="3">&nbsp;&nbsp;&nbsp;&nbsp;3</option>
+            </select>
+            <br>
+            <br>
+            
+            <select multiple="multiple" name="selectMultiple">
+                <option value="1">&nbsp;&nbsp;&nbsp;&nbsp;1</option>
+                <option value="2">&nbsp;&nbsp;&nbsp;&nbsp;2</option>
+                <option value="3">&nbsp;&nbsp;&nbsp;&nbsp;3</option>
+            </select>
+            <br>
+            <br>
+            
+            <label><input type="radio" name="radio" value="1">1<label>
+            <label><input type="radio" name="radio" value="2">2<label>
+            <label><input type="radio" name="radio" value="3">3<label>
+            <label><input type="radio" name="radio" value="4">4<label>
+            <br>
+            <br>
+            
+            <label><input type="checkbox" name="checkbox" value="1">1<label>
+            <label><input type="checkbox" name="checkbox" value="2">2<label>
+            <label><input type="checkbox" name="checkbox" value="3">3<label>
+            <label><input type="checkbox" name="checkbox" value="4">4<label>
+            
+            <br>
+            <br>
+            <!--input type="file" name="file"-->
+        </div>
+        
+        <div id="control-area">
+            <textarea rows="10" cols="40" id="output"></textarea>
+        </div>
+	</body>
+</html>
