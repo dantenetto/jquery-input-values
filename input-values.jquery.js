@@ -1,13 +1,14 @@
-﻿/*!
+/**
  * jQuery form/json converter plugin
  * Original author: @dantenetto 
  * Licensed under the MIT license
  */
 (function ($) {
     "use strict";
-    var ControlsWrapper;
+
+    var controlsWrapper;
     
-    ControlsWrapper = {
+    controlsWrapper = {
         _getSelectOneValue: function (select) {
             return select.val();
         },
@@ -49,60 +50,63 @@
             return checkbox.val();
         },
 
-        getValues: function (container, includeDisabled) {
+        getValues: function (container, keyFilter) {
             var formObject = {};
         
             container.find('input, select, textarea').each(function (i, node) {
-                var name, disabled, type, value, $node;
+                var key, disabled, type, value, $node;
             
                 $node = $(node);
             
-                name = $node.attr('name');
+                key = $node.attr($.fn.inputValues.opts.attr);
                 disabled = $node.is(':disabled');
             
-                if (!name || (!includeDisabled && disabled)) {
+                //skipping disabled or no-matches if necessary
+                if (!key 
+                    || (!$.fn.inputValues.opts.includeDisabled && disabled)
+                    || (keyFilter && (key !== keyFilter))) {
                     return;
                 }
             
                 switch (node.type) {
                     case 'radio':
                         if (!$node.is(':checked')) {
-                            formObject[name] = formObject[name] || '';
+                            formObject[key] = formObject[key] || '';
                             break;
                         }
                     
-                        formObject[name] = $node.val();
+                        formObject[key] = $node.val();
                         break;
 
                     case 'checkbox':
                         if (!$node.is(':checked')) {
-                            formObject[name] = formObject[name] || '';
+                            formObject[key] = formObject[key] || '';
                             break;
                         }
 
-                        if (!formObject.hasOwnProperty(name) || !formObject[name]) {
-                            formObject[name] = $node.val();
+                        if (!formObject.hasOwnProperty(key) || !formObject[key]) {
+                            formObject[key] = $node.val();
                             break;
                         }
                     
-                        if (!$.isArray(formObject[name])) {
-                            value = [formObject[name]];
-                            formObject[name] = value;
+                        if (!$.isArray(formObject[key])) {
+                            value = [formObject[key]];
+                            formObject[key] = value;
                         }
                     
-                        formObject[name].push($node.val());                    
+                        formObject[key].push($node.val());
                         break;
                 
                     case 'select-one':
-                        formObject[name] = $node.val();
+                        formObject[key] = $node.val();
                         break;
                 
                     case 'select-multiple':
-                        formObject[name] = [];
+                        formObject[key] = [];
                         $.each(node.options, function (i, option) {
                             var $option = $(option);
                             if ($option.is(':selected')) {
-                                formObject[name].push($option.val());
+                                formObject[key].push($option.val());
                             }
                         });
                         break;
@@ -115,12 +119,15 @@
                         break;
 
                     default:
-                        formObject[name] = $node.val();
+                        formObject[key] = $node.val();
                 }
             });
         
+            if (keyFilter) return formObject[keyFilter];
+
             return formObject;
         },
+
 
         setSelectValue: function (select, value) {
             var i, size, option;
@@ -148,7 +155,7 @@
                 value[i] = '' + value[i];
             });
 
-            if (value.indexOf(checkable.val()) > -1) {
+            if ($.inArray(checkable.val(), value) > -1) {
                 checkable.prop('checked', true);
                 return true;
             }
@@ -185,10 +192,13 @@
         },
 
         setValues: function (container, values) {
-            var key, nodes, filter, type;
+            var key, nodes, filter, type,
+                attr = $.fn.inputValues.opts.attr;
 
-            for (key in values) { if (values.hasOwnProperty(key)) {
-                filter = '[name="' + key + '"]';
+            for (key in values) {
+                if (!values.hasOwnProperty(key)) continue;
+
+                filter = '[' + attr + '="' + key + '"]';
                 nodes = container.find(filter);
 
                 if (nodes.length === 0) { continue; }
@@ -198,7 +208,7 @@
                 switch (type) {
                     case 'select-one':
                     case 'select-multiple':
-                        this.setSelectValue(nodes.eq(0), values[key]);
+                        this.setSelectValue(nodes, values[key]);
                     break;
 
                     case 'radio':
@@ -213,7 +223,7 @@
                         //fileinput can only be setted to empty string
                         if (values[key] !== '') continue;
 
-                        nodes.eq(0).val('');
+                        nodes.val('');
                     break;
                     
                     //não existe controle de valores para esses tipos de input                    
@@ -224,21 +234,42 @@
                     break;
                     
                     default:
-                        nodes.eq(0).val(values[key]);
+                        nodes.val(values[key]);
                 }
-            }}
+            }
         }
     };
-
-    //window.ControlsWrapper = ControlsWrapper;
     
-    $.fn.inputValues = function (values) {
-        if (!values) {
-            return ControlsWrapper.getValues(this);
+    //publishing
+    $.fn.inputValues = function (paramA, paramB) {
+        var values;
+
+        //getting all values from element set
+        if (!paramA) return controlsWrapper.getValues(this);
+
+        if (typeof paramA === 'string') {
+            //getting only values with the specific name
+            if (!paramB) return controlsWrapper.getValues(this, paramA);
+
+            values = {};
+            values[paramA] = paramB ;
+        } else {
+            values = paramA;
         }
-        
-        ControlsWrapper.setValues(this, values);
+
+        controlsWrapper.setValues(this, values);
         
         return this;
-    }
+    };
+
+    $.fn.inputValues.opts = {
+        attr: 'name',
+        includeDisabled: false
+    };
+
+    $.fn.inputValues.config = function (opts) {
+        $.fn.inputValues.opts = $.extend($.fn.inputValues.opts, opts);
+
+        return this;
+    };
 }(jQuery));
