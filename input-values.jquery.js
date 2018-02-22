@@ -249,7 +249,7 @@
 
         if (typeof paramA === 'string') {
             //getting only values with the specific name
-            if (!paramB) return controlsWrapper.getValues(this, paramA);
+            if (paramB === undefined) return controlsWrapper.getValues(this, paramA);
 
             values = {};
             values[paramA] = paramB ;
