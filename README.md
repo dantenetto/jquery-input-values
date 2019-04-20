@@ -53,7 +53,7 @@ $('.form').inputValues('inputTextName', 'new value');
 ### 4. Options
 There are two options that can be used to configure the plugin behavior:
 - `includeDisabled`: will include disabled inputs when getting values
-- `attr`: specifies the attribute that will be used as the key to match the elements of the form. The default is set to `name`, and the supported attrs are: `name`, `id`, `data-{custom}`. There's no support for using classes or complex queries as the matches for the inputs
+- `attr`: specifies the attribute that will be used as the key to match the elements of the form. The default is set to `name`, and the supported attrs are: `name`, `id`, `data-{custom}`. There's no support for using classes or complex queries as match for the inputs
 ```js
 //configuring the plugin
 $().inputValues.config({
